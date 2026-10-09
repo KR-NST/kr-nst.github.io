@@ -2,378 +2,382 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MARBLE ROYALE - 마블 룰렛</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>마블 룰렛 - 랜덤 추첨기</title>
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;min-height:100vh;color:#fff4d2;
-  font-family:Arial,sans-serif;text-align:center;
-  background:radial-gradient(ellipse at top,#29376b,#0a0d1b 65%);
+body{margin:0;background:#fff;color:#222;font:14px Arial,"Malgun Gothic",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{padding:12px 18px;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:20px;margin:0;font-weight:600}
+.wrap{max-width:1100px;margin:auto;padding:14px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+button,select,input{border:1px solid #ccc;border-radius:4px;background:#fff;padding:8px}
+button:hover{background:#f0f0f0}
+.primary{background:#3a9e65;color:white;border-color:#328856}
+.primary:hover{background:#308b56}
+.panel{border:1px solid #ddd;border-radius:5px;margin-bottom:12px;background:#fff}
+.panel-title{padding:10px 12px;background:#f6f6f6;border-bottom:1px solid #ddd;font-weight:bold}
+.panel-body{padding:12px}
+.settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.field label{display:block;font-size:12px;color:#666;margin-bottom:5px}
+.field input,.field select{width:100%;min-width:0}
+.maparea{height:310px;position:relative;overflow:hidden;background:#f4f4f4;border:1px solid #ddd}
+canvas{display:block;width:100%;height:100%}
+.maplabel{position:absolute;top:10px;left:10px;color:#555;background:#ffffffd9;padding:5px 8px;border-radius:3px}
+.bottom-grid{display:grid;grid-template-columns:1fr 280px;gap:12px}
+textarea{width:100%;height:190px;padding:10px;resize:vertical;border:1px solid #ccc;border-radius:4px;line-height:1.7}
+.hint{font-size:12px;color:#777;line-height:1.6}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row input{min-width:0;flex:1}
+.result{padding:15px;text-align:center;background:#fafafa;border:1px solid #eee;margin:12px 0;font-size:18px;min-height:53px}
+.result strong{color:#21874d}
+.notice{font-size:13px;line-height:1.8;color:#555}
+footer{text-align:center;padding:24px;color:#888;font-size:12px}
+.hidden{display:none!important}
+@media(max-width:700px){
+ .settings-grid{grid-template-columns:1fr 1fr}
+ .bottom-grid{grid-template-columns:1fr}
+ header{align-items:flex-start;flex-direction:column}
+ .maparea{height:260px}
 }
-main{width:min(940px,94%);margin:auto;padding:28px 0}
-.eyebrow{color:#ffd875;letter-spacing:5px;font-size:12px}
-h1{font-size:clamp(30px,6vw,52px);color:#ffd875;
-text-shadow:0 0 25px #ffbb4770;margin:12px 0}
-p{color:#bfc9e8}
-.machine{
-  background:linear-gradient(145deg,#242c4b,#090e1e);
-  border:2px solid #d7b85e;border-radius:24px;padding:12px;
-  box-shadow:0 0 35px #e8b94625;
-}
-.machine-title{display:flex;justify-content:space-between;
-color:#ffda83;font-size:11px;letter-spacing:2px;padding:5px 4px 12px}
-canvas{display:block;width:100%;height:auto;border-radius:15px;
-background:#080d20;border:1px solid #8f814b}
-#status{min-height:55px;display:grid;place-items:center;
-font-size:16px;padding:10px}
-#status strong{color:#ffd875;font-size:24px}
-.controls{display:grid;grid-template-columns:1fr 1fr;
-gap:12px;margin-top:14px}
-.panel{background:#ffffff0a;border:1px solid #ffffff20;
-border-radius:14px;padding:16px;text-align:left}
-label{display:block;font-size:13px;color:#c6d0e9;margin-bottom:10px}
-select,button{width:100%;padding:14px;border-radius:10px;font-size:15px}
-select{background:#171e35;color:white;border:1px solid #d6b75c}
-button{border:0;font-weight:bold;cursor:pointer}
-#spin{background:linear-gradient(110deg,#fff0b0,#ffb72f,#ffe69a);
-color:#382407;align-self:end;box-shadow:0 4px 18px #ffba3640}
-button:disabled{opacity:.6;cursor:wait}
-.history{margin-top:13px;background:#ffffff08;
-border:1px solid #ffffff1b;border-radius:14px;padding:15px;text-align:left}
-.history h3{font-size:12px;color:#c4cee7;margin:0 0 12px}
-.tags{display:flex;flex-wrap:wrap;gap:7px}
-.tag{font-size:12px;border:1px solid #ffffff25;background:#ffffff0c;
-border-radius:20px;padding:7px 10px;color:#e4e9ff}
-.tag.winner{background:#ffd875;color:#201605;border-color:#ffd875;font-weight:bold}
-footer{font-size:11px;color:#7783a4;line-height:1.8;margin-top:20px}
-@media(max-width:520px){.controls{grid-template-columns:1fr}
-main{padding-top:20px}.machine{padding:8px}}
+@media(max-width:420px){.settings-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<main>
-  <div class="eyebrow">★ THE ULTIMATE MARBLE GAME ★</div>
-  <h1>MARBLE ROYALE</h1>
-  <p>행운의 구슬 하나를 찾아라!</p>
+<header>
+  <h1>🔵 Marble Roulette 마블 룰렛</h1>
+  <button id="settingsToggle">Settings ▲</button>
+</header>
 
-  <section class="machine">
-    <div class="machine-title">
-      <span>ROYAL CHAMBER</span>
-      <span id="state">● READY</span>
+<main class="wrap">
+  <section class="panel" id="settingsPanel">
+    <div class="panel-title">Settings</div>
+    <div class="panel-body">
+      <div class="settings-grid">
+        <div class="field">
+          <label>맵 선택</label>
+          <select id="mapSelect">
+            <option value="classic">Classic</option>
+            <option value="wide">Wide Map</option>
+            <option value="circle">Circle Map</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Recording</label>
+          <select id="recording">
+            <option value="yes">기록 사용</option>
+            <option value="no">기록 안 함</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Using skills</label>
+          <select id="skills">
+            <option value="yes">사용</option>
+            <option value="no">사용 안 함</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>당첨 방식</label>
+          <select id="winnerMode">
+            <option value="first">First - 첫 번째</option>
+            <option value="last">Last - 마지막</option>
+            <option value="multiple">Multiple - 여러 명</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>당첨 인원 (Multiple)</label>
+          <input id="winnerCount" type="number" value="2" min="1" max="50">
+        </div>
+        <div class="field">
+          <label>추첨 속도</label>
+          <select id="speed">
+            <option value="1">보통</option>
+            <option value="0.65">빠르게</option>
+            <option value="1.6">느리게</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <canvas id="game" width="760" height="460"></canvas>
-    <div id="status" aria-live="polite">구슬 개수를 선택하고 시작하세요!</div>
   </section>
 
-  <div class="controls">
-    <div class="panel">
-      <label for="count">추첨할 구슬 개수</label>
-      <select id="count">
-        <option value="5">5개</option>
-        <option value="8" selected>8개</option>
-        <option value="10">10개</option>
-        <option value="12">12개</option>
-        <option value="16">16개</option>
-        <option value="20">20개</option>
-      </select>
+  <section class="panel">
+    <div class="panel-title">Map</div>
+    <div class="maparea">
+      <canvas id="game" width="1000" height="430"></canvas>
+      <div class="maplabel" id="mapLabel">Classic Map</div>
     </div>
-    <button id="spin">🎰 룰렛 START</button>
+    <div class="panel-body">
+      <div class="row">
+        <button id="shuffle">Shuffle</button>
+        <button class="primary" id="start">▶ Start</button>
+        <button id="reset">Reset</button>
+        <span class="hint" id="state">준비 완료</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">Winner</div>
+    <div class="panel-body">
+      <div class="row">
+        <button id="firstBtn">First</button>
+        <button id="lastBtn">Last</button>
+        <input id="winnerInput" placeholder="당첨자" readonly>
+        <button id="multipleBtn">Multiple</button>
+      </div>
+      <div class="row" style="margin-top:9px">
+        <input id="minRange" type="number" placeholder="최소 번호" value="1">
+        <span>~</span>
+        <input id="maxRange" type="number" placeholder="최대 번호" value="8">
+        <button id="rangeApply">번호 적용</button>
+      </div>
+      <div class="result" id="result">Enter names below</div>
+    </div>
+  </section>
+
+  <div class="bottom-grid">
+    <section class="panel">
+      <div class="panel-title">Enter names below</div>
+      <div class="panel-body">
+        <textarea id="names" spellcheck="false">수박*2
+키위*2
+귤*2
+사과
+포도
+딸기</textarea>
+        <p class="hint">한 줄에 한 항목씩 입력하세요. 수박*2처럼 입력하면 해당 항목을 두 번 참가시킵니다.</p>
+        <div class="row">
+          <button class="primary" id="applyNames">항목 적용</button>
+          <button id="removeWinner">당첨 항목 제거</button>
+          <button id="clearHistory">기록 지우기</button>
+        </div>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-title">Recording / 추첨 기록</div>
+      <div class="panel-body">
+        <div id="history" class="notice">아직 기록이 없습니다.</div>
+      </div>
+    </section>
   </div>
 
-  <section class="history">
-    <h3>현재 구슬</h3>
-    <div class="tags" id="current"></div>
+  <section class="panel">
+    <div class="panel-title">Notice</div>
+    <div class="panel-body notice">
+      이름을 입력하고 Start를 눌러 추첨하세요.<br>
+      맵은 이 예제에서 제공하는 기본 맵으로 동작합니다.
+    </div>
   </section>
-
-  <section class="history">
-    <h3>당첨 기록</h3>
-    <div class="tags" id="records"><span class="tag">아직 기록이 없습니다.</span></div>
-  </section>
-
-  <footer>MARBLE ROYALE · JUST FOR FUN<br>
-  무작위 번호 추첨 게임</footer>
 </main>
+<footer>Marble Roulette · 개인용 랜덤 추첨기</footer>
 
 <script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-const W=760,H=460;
-const count=document.getElementById("count");
-const spin=document.getElementById("spin");
-const status=document.getElementById("status");
-const state=document.getElementById("state");
-const current=document.getElementById("current");
-const records=document.getElementById("records");
+const $=id=>document.getElementById(id);
+const canvas=$("game"),ctx=canvas.getContext("2d");
+const palette=["#ef5350","#42a5f5","#ffca28","#66bb6a",
+"#ab47bc","#ff7043","#26a69a","#ec407a","#7e8ce0","#b0bec5"];
+let entries=[],marbles=[],history=[],busy=false,lastWinners=[];
+let raf=0,started=0,duration=4500;
+let mode="first",mapType="classic";
 
-const palette=[
- "#ff4e70","#36d9ff","#ffd447","#a879ff",
- "#5dffb0","#ff963d","#f5f5ff","#ff65e8",
- "#80a7ff","#ff7555","#d4ff5c","#53f1d5",
- "#fca6ff","#e8bd87","#8cf0ff","#ffcfef",
- "#b9ff83","#f8a45d","#a5aaff","#fff07d"
-];
-
-let balls=[];
-let running=false;
-let winner=0;
-let started=0;
-let last=0;
-let elapsed=0;
-let results=[];
-
-function random(a,b){return Math.random()*(b-a)+a}
-
+function parseEntries(){
+  const lines=$("names").value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+  const list=[];
+  for(const line of lines){
+    const match=line.match(/^(.*?)\s*\*\s*(\d+)$/);
+    if(match){
+      const name=match[1].trim(),n=Math.min(100,Math.max(1,Number(match[2])));
+      for(let i=0;i<n;i++)list.push(name);
+    }else list.push(line);
+  }
+  return list;
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
 function setup(){
-  const n=Number(count.value);
-  winner=0;
-  balls=[];
-  const r=n>=16?11:n>=10?13:15;
-
-  for(let i=1;i<=n;i++){
-    balls.push({
-      id:i,x:random(100,660),y:random(90,300),
-      vx:random(-2,2),vy:random(-1,1),
-      r,color:palette[(i-1)%palette.length],
-      phase:random(0,7)
-    });
+  if(busy)return;
+  entries=parseEntries();
+  if(entries.length<2){
+    alert("항목을 두 개 이상 입력하세요.");
+    return;
   }
-  renderTags();
+  marbles=entries.map((name,i)=>({
+    name,id:i,x:100+(i%8)*110,y:75+Math.floor(i/8)*70,
+    vx:0,vy:0,r:17,color:palette[i%palette.length]
+  }));
+  $("state").textContent=entries.length+"개 항목 준비 완료";
+  $("winnerInput").value="";
+  $("result").textContent="Enter names below";
   draw();
 }
-
-function renderTags(){
-  current.innerHTML="";
-  balls.forEach(b=>{
-    const el=document.createElement("span");
-    el.className="tag"+(winner===b.id?" winner":"");
-    el.textContent="● 구슬 "+b.id;
-    el.style.borderColor=winner===b.id?"#ffd875":b.color+"88";
-    current.appendChild(el);
-  });
-}
-
-function background(){
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,"#19294e");
-  g.addColorStop(1,"#080c1a");
-  ctx.fillStyle=g;
-  ctx.fillRect(0,0,W,H);
-
-  for(let i=0;i<65;i++){
-    ctx.fillStyle=i%3===0?"#ffd87566":"#d8e6ff35";
-    ctx.beginPath();
-    ctx.arc((i*139+23)%W,(i*83+13)%H,i%5===0?1.7:1,0,Math.PI*2);
-    ctx.fill();
-  }
-
-  ctx.save();
-  ctx.shadowColor="#ffc94f";
-  ctx.shadowBlur=18;
-  ctx.strokeStyle="#d9b45e";
-  ctx.lineWidth=7;
-  ctx.beginPath();
-  ctx.ellipse(W/2,H/2+8,W*.445,H*.405,0,0,Math.PI*2);
-  ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.strokeStyle="#fff0b8";
-  ctx.lineWidth=1.5;
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.save();
-  ctx.strokeStyle="#ffffff22";
-  ctx.lineWidth=3;
-  ctx.beginPath();
-  ctx.ellipse(W*.38,H*.23,W*.23,H*.07,-.2,Math.PI,Math.PI*2);
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.fillStyle="#050916aa";
-  ctx.beginPath();
-  ctx.ellipse(W/2,H*.81,W*.37,H*.07,0,0,Math.PI*2);
-  ctx.fill();
-}
-
-function drawBall(b){
-  const r=b.r;
-  const x=b.x;
-  const y=b.y+(running?Math.sin(elapsed*.009+b.phase):0);
-
-  ctx.fillStyle="#0007";
-  ctx.beginPath();
-  ctx.ellipse(x+3,y+r*.7,r,r*.4,0,0,Math.PI*2);
-  ctx.fill();
-
-  const g=ctx.createRadialGradient(
-    x-r*.35,y-r*.4,r*.05,x,y,r*1.15
-  );
-  g.addColorStop(0,"#ffffff");
-  g.addColorStop(.18,b.color);
-  g.addColorStop(.75,b.color);
-  g.addColorStop(1,"#17162a");
-
-  ctx.save();
-  ctx.shadowColor=b.color;
-  ctx.shadowBlur=winner===b.id?28:10;
-  ctx.fillStyle=g;
-  ctx.beginPath();
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.lineWidth=winner===b.id?3:1;
-  ctx.strokeStyle=winner===b.id?"#fff5ad":"#ffffff99";
-  ctx.stroke();
-
-  ctx.fillStyle="#ffffffbb";
-  ctx.beginPath();
-  ctx.ellipse(x-r*.28,y-r*.35,r*.27,r*.14,-.5,0,Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle="white";
-  ctx.font="bold "+Math.max(9,r*.85)+"px Arial";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.shadowColor="#000";
-  ctx.shadowBlur=3;
-  ctx.fillText(b.id,x,y+1);
-  ctx.restore();
-}
-
 function draw(){
-  ctx.clearRect(0,0,W,H);
-  background();
-  balls.forEach(drawBall);
+  const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle="#f5f5f5";ctx.fillRect(0,0,w,h);
 
-  if(winner){
-    const b=balls.find(x=>x.id===winner);
-    if(b){
-      ctx.save();
-      ctx.strokeStyle="#ffe79a";
-      ctx.lineWidth=3;
-      ctx.setLineDash([5,6]);
-      ctx.beginPath();
-      ctx.arc(b.x,b.y,b.r+10,0,Math.PI*2);
-      ctx.stroke();
-      ctx.restore();
+  if(mapType==="circle"){
+    ctx.strokeStyle="#bbb";ctx.lineWidth=5;
+    ctx.beginPath();ctx.arc(w/2,h/2,Math.min(w,h)*.38,0,Math.PI*2);ctx.stroke();
+  }else{
+    ctx.strokeStyle="#ddd";ctx.lineWidth=2;
+    for(let x=0;x<w;x+=50){
+      ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();
     }
   }
-}
+  ctx.strokeStyle="#bbb";ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(20,h-35);ctx.lineTo(w-20,h-35);ctx.stroke();
 
-function update(dt){
-  const f=Math.min(dt/16.67,2);
-  const left=W*.075,right=W*.925;
-  const top=H*.14,bottom=H*.84;
-
-  balls.forEach((b,i)=>{
-    b.x+=b.vx*f;
-    b.y+=b.vy*f;
-    b.vy+=.045*f;
-    b.vx+=random(-.12,.12)*f;
-
-    if(b.x<left+b.r){b.x=left+b.r;b.vx=Math.abs(b.vx)*.9}
-    if(b.x>right-b.r){b.x=right-b.r;b.vx=-Math.abs(b.vx)*.9}
-    if(b.y<top+b.r){b.y=top+b.r;b.vy=Math.abs(b.vy)*.9}
-    if(b.y>bottom-b.r){b.y=bottom-b.r;b.vy=-Math.abs(b.vy)*.83}
-
-    for(let j=i+1;j<balls.length;j++){
-      const o=balls[j];
-      const dx=o.x-b.x,dy=o.y-b.y;
-      const d=Math.hypot(dx,dy)||.01;
-      const min=b.r+o.r;
-
-      if(d<min){
-        const nx=dx/d,ny=dy/d;
-        const overlap=(min-d)/2;
-        b.x-=nx*overlap;b.y-=ny*overlap;
-        o.x+=nx*overlap;o.y+=ny*overlap;
-
-        const rel=(b.vx-o.vx)*nx+(b.vy-o.vy)*ny;
-        if(rel>0){
-          b.vx-=rel*nx*.88;b.vy-=rel*ny*.88;
-          o.vx+=rel*nx*.88;o.vy+=rel*ny*.88;
-        }
-      }
-    }
+  marbles.forEach((b,i)=>{
+    ctx.save();
+    ctx.shadowColor=b.color;ctx.shadowBlur=busy?12:4;
+    const g=ctx.createRadialGradient(b.x-6,b.y-7,2,b.x,b.y,b.r);
+    g.addColorStop(0,"#fff");g.addColorStop(.22,b.color);g.addColorStop(1,"#333");
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#fff";ctx.lineWidth=1.5;ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle="#222";ctx.font="bold 11px Arial";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    let label=b.name;
+    if(label.length>7)label=label.slice(0,6)+"…";
+    ctx.fillText(label,b.x,b.y+b.r+13);
+    ctx.restore();
   });
 }
-
-function finish(){
-  running=false;
-  const chosen=balls[Math.floor(Math.random()*balls.length)];
-  winner=chosen.id;
-
-  balls.forEach(b=>{
-    if(b.id===winner){
-      b.x=W/2;b.y=H*.48;b.vx=0;b.vy=0;
-    }else{
-      const dx=b.x-W/2,dy=b.y-H*.48;
-      const d=Math.hypot(dx,dy)||1;
-      if(d<48){b.x+=dx/d*48;b.y+=dy/d*48}
-      b.x=Math.max(W*.08+b.r,Math.min(W*.92-b.r,b.x));
-      b.y=Math.max(H*.14+b.r,Math.min(H*.84-b.r,b.y));
-    }
-  });
-
-  state.textContent="★ WINNER";
-  status.innerHTML="🏆 당첨 구슬 <strong>NO. "+winner+"</strong>!";
-  results.unshift(winner);
-  results=results.slice(0,10);
-  records.innerHTML="";
-  results.forEach((id,i)=>{
-    const tag=document.createElement("span");
-    tag.className="tag"+(i===0?" winner":"");
-    tag.textContent="#"+id;
-    records.appendChild(tag);
-  });
-
-  renderTags();
-  spin.disabled=false;
-  spin.textContent="🔄 다시 돌리기";
-  draw();
-}
-
 function animate(now){
-  const dt=last?Math.min(now-last,34):16;
-  last=now;
-  elapsed=now;
-
-  if(running){
-    update(dt);
-    if(now-started>=4500)finish();
-  }
-  draw();
-  requestAnimationFrame(animate);
-}
-
-spin.addEventListener("click",()=>{
-  if(running)return;
-  if(balls.length!==Number(count.value))setup();
-
-  winner=0;
-  running=true;
-  started=performance.now();
-  state.textContent="● SPINNING";
-  status.textContent="구슬들이 굴러갑니다... 행운의 주인공은?";
-  spin.disabled=true;
-  spin.textContent="✨ 추첨 진행 중...";
-
-  balls.forEach(b=>{
-    b.vx=random(-5.5,5.5);
-    b.vy=random(-5,1);
+  if(!busy)return;
+  const t=Math.min(1,(now-started)/duration);
+  marbles.forEach((b,i)=>{
+    if(mapType==="circle"){
+      const a=(i/marbles.length)*Math.PI*2+now*.004;
+      const rad=70+(i%4)*35;
+      b.x=canvas.width/2+Math.cos(a)*rad;
+      b.y=canvas.height/2+Math.sin(a)*rad;
+    }else{
+      b.x+=b.vx*(1-t*.9);
+      b.y+=b.vy*(1-t*.9);
+      if(b.x<25||b.x>canvas.width-25)b.vx*=-1;
+      if(b.y<25||b.y>canvas.height-55)b.vy*=-1;
+    }
   });
-  renderTags();
-});
+  draw();
+  if(t<1){
+    raf=requestAnimationFrame(animate);
+  }else finish();
+}
+function start(){
+  if(busy)return;
+  if(entries.length<2)setup();
+  if(entries.length<2)return;
 
-count.addEventListener("change",()=>{
-  if(running)return;
+  busy=true;
+  $("start").disabled=true;
+  $("state").textContent="추첨 진행 중...";
+  $("result").textContent="구슬이 움직이고 있습니다...";
+  duration=4500*Number($("speed").value);
+  started=performance.now();
+  marbles.forEach(b=>{
+    b.vx=(Math.random()-.5)*13;
+    b.vy=(Math.random()-.5)*9;
+  });
+  raf=requestAnimationFrame(animate);
+}
+function finish(){
+  busy=false;
+  $("start").disabled=false;
+
+  let n=1;
+  if(mode==="multiple")n=Math.min(entries.length,Math.max(1,Number($("winnerCount").value)||2));
+  const pool=shuffle([...entries]);
+  lastWinners=pool.slice(0,n);
+  $("winnerInput").value=lastWinners.join(", ");
+  $("result").textContent="🏆 당첨: "+lastWinners.join(", ");
+  $("state").textContent="추첨 완료";
+
+  if($("recording").value==="yes"){
+    history.unshift(...lastWinners.map(name=>({name,time:new Date().toLocaleTimeString()})));
+    history=history.slice(0,50);
+    renderHistory();
+  }
+
+  // 결과 표시를 위해 구슬을 아래쪽 결승선 주변에 배치
+  marbles.forEach((b,i)=>{
+    b.x=55+(i%12)*80;
+    b.y=80+Math.floor(i/12)*75;
+  });
+  draw();
+}
+function renderHistory(){
+  const box=$("history");
+  box.replaceChildren();
+  if(!history.length){box.textContent="아직 기록이 없습니다.";return;}
+  history.forEach((h,i)=>{
+    const div=document.createElement("div");
+    div.textContent=(history.length-i)+". "+h.name+" · "+h.time;
+    box.appendChild(div);
+  });
+}
+$("settingsToggle").onclick=()=>{
+  const p=$("settingsPanel");
+  p.classList.toggle("hidden");
+  $("settingsToggle").textContent=p.classList.contains("hidden")?"Settings ▼":"Settings ▲";
+};
+$("applyNames").onclick=setup;
+$("shuffle").onclick=()=>{
+  if(busy)return;
+  const lines=shuffle(parseEntries());
+  $("names").value=lines.join("\n");
   setup();
-  state.textContent="● READY";
-  status.textContent="구슬 개수가 변경되었습니다. 시작하세요!";
-});
-
+};
+$("start").onclick=start;
+$("reset").onclick=()=>{
+  if(busy){cancelAnimationFrame(raf);busy=false;$("start").disabled=false;}
+  setup();
+};
+$("firstBtn").onclick=()=>{mode="first";$("winnerInput").value="";$("result").textContent="First 모드 선택";};
+$("lastBtn").onclick=()=>{mode="last";$("winnerInput").value="";$("result").textContent="Last 모드 선택";};
+$("multipleBtn").onclick=()=>{mode="multiple";$("result").textContent="Multiple 모드 선택";};
+$("rangeApply").onclick=()=>{
+  if(busy)return;
+  const min=Math.floor(Number($("minRange").value));
+  const max=Math.floor(Number($("maxRange").value));
+  if(!Number.isFinite(min)||!Number.isFinite(max)||max<min){
+    alert("올바른 번호 범위를 입력하세요.");return;
+  }
+  $("names").value=Array.from({length:Math.min(500,max-min+1)},(_,i)=>String(min+i)).join("\n");
+  setup();
+};
+$("removeWinner").onclick=()=>{
+  if(busy||!lastWinners.length)return;
+  const removed=new Set(lastWinners);
+  let toRemove=[...removed];
+  let list=parseEntries();
+  toRemove.forEach(name=>{
+    const i=list.indexOf(name);
+    if(i>=0)list.splice(i,1);
+  });
+  $("names").value=list.join("\n");
+  lastWinners=[];
+  setup();
+};
+$("clearHistory").onclick=()=>{history=[];renderHistory();};
+$("mapSelect").onchange=()=>{
+  mapType=$("mapSelect").value==="circle"?"circle":"classic";
+  $("mapLabel").textContent=$("mapSelect").selectedOptions[0].text+" Map";
+  setup();
+};
+$("recording").onchange=()=>{};
+$("skills").onchange=()=>{};
+$("winnerMode").onchange=()=>{
+  mode=$("winnerMode").value;
+};
 setup();
-requestAnimationFrame(animate);
 </script>
 </body>
 </html>
